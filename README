@@ -1,0 +1,32 @@
+- - - - -
+1.
+Compress the files:
+
+$ find ./data -type f -name '*.ZDL' | parallel 'name=$(echo {} | cut -d"/" -f3); ./lzss -e {} -o ./out/$name.out'
+
+Output CSV of original, compressed files:
+
+$ find ./data -type f -name '*.ZDL' | parallel 'name=$(echo {} | cut -d"/" -f3); ls -l {} ./out/$name.out' | awk -F" " '{print $9,$5}' | xargs -n4 | awk -F" " '{print $1 "," $2 "," $3 "," $4 "," $4*100/$2}' > result.csv
+
+Building the Python library:
+----------------------------
+
+$ python setup.py build
+$ sudo python setup.py install
+$ python
+>>> import lzss
+>>> lzss.decode("out/6322676_4F7DDD79.ZDL.out")
+
+- - - - -
+2. to compress:   "lzss -e <input filename> -o <output filename>"
+   to decompress: "lzss -d <input filename> -o <output filename>"
+
+- - - - -
+3. Note that firmware has their own version of this code checked into their own repository.
+   If any changes are made to encoding here then a sample source and encoded version should
+   be sent to firmware to make sure that they can still decode.
+   Likewise if they change their encode then they should send an encoded file for verification.
+
+4. The file "fw-lzss.c" is the (current) firmware/windows version of lzss.c.
+   The file "fw-lzss.c.lzs" is that file LZS encoded by that version.  Our version of lzss
+   should be capable of decoding it, resulting in the "fw-lzss.c" file.
